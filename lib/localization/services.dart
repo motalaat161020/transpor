@@ -11,8 +11,7 @@ class MyServices extends GetxService {
 
   Future<MyServices> init() async {
     //  await Firebase.initializeApp();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,);
+   
       
     Get.put(menu_controller.MenuController());
     Get.put(NavigationController());

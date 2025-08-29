@@ -52,28 +52,21 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // static const FirebaseOptions web = FirebaseOptions(
-  //   apiKey: 'AIzaSyDoKgUa02_BAKM9XWnAIW-3jfQ-vDzt5Dg',
-  //   appId: '1:119067449963:web:3a9d89ed1325318818ef2e',
-  //   messagingSenderId: '119067449963',
-  //   projectId: 'flutter-uber-clone-with-ef45b',
-  //   authDomain: 'flutter-uber-clone-with-ef45b.firebaseapp.com',
-  //   databaseURL: 'https://flutter-uber-clone-with-ef45b-default-rtdb.firebaseio.com',
-  //   storageBucket: 'flutter-uber-clone-with-ef45b.appspot.com',
-  //   measurementId: 'G-HBS2MV8Z5H',
-  //  );
-  // my firebase code
+ 
 
 
-  static const FirebaseOptions web =FirebaseOptions(
+  static const FirebaseOptions web = FirebaseOptions(
     apiKey: "AIzaSyB8r8K7WXYEXBwHH0y4i8OYm-7k3qgOgfQ",
     authDomain: "transporter-app-59aac.firebaseapp.com",
     projectId: "transporter-app-59aac",
     storageBucket: "transporter-app-59aac.firebasestorage.app",
     messagingSenderId: "585762437257",
     appId: "1:585762437257:web:8f3f49fd6ffca38ce06e58",
-    measurementId: "G-CH64HW2PYH"
-);
+    measurementId: "G-CH64HW2PYH",
+    // أضف هذا السطر
+    databaseURL: "https://transporter-app-59aac-default-rtdb.firebaseio.com", 
+  );
+
   //  FirebaseOptions(
     
   //     apiKey: "AIzaSyC3Hht0P944IhbfYXvsonb6YQ3L8raFKyQ",

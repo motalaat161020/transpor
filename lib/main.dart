@@ -14,14 +14,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_google_maps_webservices/places.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-void main(List<String> args) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  customErrorScreen();
-  await CashHelper.init();
-  await initialServices();
-   runApp(const MyApp());
+import 'package:admin_dashboard/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+void main() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    
+    customErrorScreen();
+    await CashHelper.init();
+    await initialServices();
+    
+    runApp(const MyApp());
+  } catch (e) {
+    print('/////////////////////-------------------///////////////////\nError initializing app: $e');
+    // يمكنك إضافة شاشة خطأ هنا
+  }
 }
 
 final places =
@@ -66,7 +77,8 @@ class _MyAppState extends State<MyApp> {
       unknownRoute: GetPage(
           name:  authenticationPageRoute,
           page: ()
-           => //const Material(child: SiteLayout())
+           => 
+           //const Material(child: SiteLayout())
            FirebaseAuth.instance.currentUser != null
               ? const Material(child: SiteLayout())
               : const AuthenticationPage()
