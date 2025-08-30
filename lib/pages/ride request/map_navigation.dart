@@ -118,17 +118,32 @@ class _MapSelectionScreenState extends State<MapSelectionScreen> {
   // }
 
   void _searchPlaces(String input) async {
-    final url =
-        'https://dashboard.ghayti.app/proxy.php?type=autocomplete&input=$input&components=country:mr';
-    final response = await http.get(Uri.parse(url));
+    try {
+      // Validate input is not null or empty
+      if (input.isEmpty) {
+        setState(() {
+          predictions = [];
+        });
+        return;
+      }
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body) as Map<String, dynamic>;
-      final List<dynamic> raw = data['predictions'] as List<dynamic>;
-      setState(() {
-        predictions = raw.map((e) => e as Map<String, dynamic>).toList();
-      });
-    } else {
+      final url =
+          'https://dashboard.ghayti.app/proxy.php?type=autocomplete&input=$input&components=country:eg';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> raw = data['predictions'] as List<dynamic>;
+        setState(() {
+          predictions = raw.map((e) => e as Map<String, dynamic>).toList();
+        });
+      } else {
+        print(
+            'Error: Failed to load search results. Status: ${response.statusCode}');
+        Get.snackbar('Error', 'Failed to load search results');
+      }
+    } catch (e) {
+      print('Error in _searchPlaces: $e');
       Get.snackbar('Error', 'Failed to load search results');
     }
   }
@@ -157,33 +172,49 @@ class _MapSelectionScreenState extends State<MapSelectionScreen> {
 //   }
 
   Future<void> _selectPrediction(String name, String prediction) async {
-    final url =
-        'https://dashboard.ghayti.app/proxy.php?type=details&place_id=$prediction';
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final details = json.decode(response.body);
-      if (details['result'] != null && details['result']['geometry'] != null) {
-        LatLng location = LatLng(
-          (details['result']['geometry']['location']['lat'] as num).toDouble(),
-          (details['result']['geometry']['location']['lng'] as num).toDouble(),
-        );
-
-        // String placeName = details['result']['formatted_address'];
-        Get.snackbar('Success', 'Location selected successfully');
-
-        // إرجاع   إلى الشاشة السابقة
-        Navigator.pop(context, {
-          'location': name,
-          'latitude': location.latitude,
-          'longitude': location.longitude,
-        });
-      } else {
-        Get.snackbar('Error', 'Invalid place details');
+    try {
+      // Validate inputs are not null or empty
+      if (name.isEmpty || prediction.isEmpty) {
+        Get.snackbar('Error', 'Invalid prediction data');
+        return;
       }
-    } else {
-      Get.snackbar(
-          'Failed to load place details', 'Error: ${response.statusCode}');
+
+      final url =
+          'https://dashboard.ghayti.app/proxy.php?type=details&place_id=$prediction';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final details = json.decode(response.body);
+        if (details['result'] != null &&
+            details['result']['geometry'] != null) {
+          LatLng location = LatLng(
+            (details['result']['geometry']['location']['lat'] as num)
+                .toDouble(),
+            (details['result']['geometry']['location']['lng'] as num)
+                .toDouble(),
+          );
+
+          Get.snackbar('Success', 'Location selected successfully');
+
+          // إرجاع   إلى الشاشة السابقة
+          Navigator.pop(context, {
+            'location': name,
+            'latitude': location.latitude,
+            'longitude': location.longitude,
+          });
+        } else {
+          print('Error: Invalid place details structure');
+          Get.snackbar('Error', 'Invalid place details');
+        }
+      } else {
+        print(
+            'Error: Failed to load place details. Status: ${response.statusCode}');
+        Get.snackbar(
+            'Failed to load place details', 'Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in _selectPrediction: $e');
+      Get.snackbar('Error', 'Failed to load place details');
     }
   }
 

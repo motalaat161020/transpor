@@ -66,7 +66,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
         controller.text = result['location'].toString() ?? '';
-        LatLng location = LatLng(result['latitude'] as double, result['longitude']as double);
+        LatLng location =
+            LatLng(result['latitude'] as double, result['longitude'] as double);
         if (isStart) {
           startLocation = location;
         } else {
@@ -123,11 +124,11 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
 
                       if (result != null) {
                         setState(() {
-                          riderId = result['id'].toString() ;
+                          riderId = result['id'].toString();
                           riderPhone = result['phone'].toString();
                           selectedRider = result['name'].toString();
-                          _riderController.text = result[
-                              'name'].toString(); // تعيين اسم الراكب في TextFormField
+                          _riderController.text = result['name']
+                              .toString(); // تعيين اسم الراكب في TextFormField
                         });
                       }
                     },
@@ -269,10 +270,9 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                                       'newState': "active",
                                       'type': 'Create New Rider By Admin',
                                       'actionType': 'riderCreate',
-                                      'timestamp':
-                                          FieldValue.serverTimestamp(),
+                                      'timestamp': FieldValue.serverTimestamp(),
                                     });
-                                                                    } else {
+                                  } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content: Text(
@@ -577,7 +577,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                           'actionType': 'rideRequestCreate',
                           'timestamp': FieldValue.serverTimestamp(),
                         });
-                                            } else {
+                      } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                               content: Text('Please fill all the fields'.tr)),
@@ -793,8 +793,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                           .collection('adminActions')
                           .add({
                         'adminId': adminId,
-                        'adminEmail':
-                            FirebaseAuth.instance.currentUser?.email,
+                        'adminEmail': FirebaseAuth.instance.currentUser?.email,
                         'Name': selectedRider.toString().trim(),
                         'Id': riderId,
                         'newState': "active",
@@ -802,7 +801,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                         'actionType': 'freeRideRequestCreate',
                         'timestamp': FieldValue.serverTimestamp(),
                       });
-                                        } else {
+                    } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                             content: Text(
@@ -832,9 +831,15 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     const urlForTimer = 'https://requesttimeout-f25leahmia-uc.a.run.app';
 
     try {
+      // Validate that id is not null or empty
+      if (id.isEmpty) {
+        print('Error: ID cannot be empty');
+        return null;
+      }
+
       final response = await http.post(
         Uri.parse(urlForTimer),
-        body: {'id': id},
+        body: json.encode({'id': id}), // Use json.encode instead of raw body
         headers: {
           'Content-Type': 'application/json',
           'Origin': 'https://dashboard.ghayti.app',
@@ -849,13 +854,14 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
         },
       );
 
-      //  if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-      // } else {
-      //   throw Exception("Request failed with status: ${response.statusCode}");
-      // }
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+        return null;
+      }
     } catch (e) {
-      // Get.snackbar("Error fetching timer data: $e" , "" , duration:Duration(seconds: 15));
+      print('Error fetching timer data: $e');
       return null;
     }
   }
@@ -867,15 +873,14 @@ Future<Directions?> getDirections({
 }) async {
   const proxyUrl = 'https://dashboard.ghayti.app/directions-proxy.php';
   try {
-    // final a = http.Request('POST', Uri.parse(proxyUrl));
-    //  final streamedResponse = await client.send(a);
-    //   final response = await http.Response.fromStream(streamedResponse);
+    final requestBody = {
+      'origin': '${origin.latitude},${origin.longitude}',
+      'destination': '${destination.latitude},${destination.longitude}',
+    };
+
     final response = await http.post(
       Uri.parse(proxyUrl),
-      body: json.encode({
-        'origin': '${origin.latitude},${origin.longitude}',
-        'destination': '${destination.latitude},${destination.longitude}',
-      }),
+      body: json.encode(requestBody),
       headers: {
         'Content-Type': 'application/json',
         'Origin': 'https://dashboard.ghayti.app',
@@ -889,11 +894,29 @@ Future<Directions?> getDirections({
         'Access-Control-Expose-Headers': 'Content-Length, X-Custom-Header'
       },
     );
+
     if (response.statusCode == 200) {
-      return Directions.fromMap(json.decode(response.body) as Map<String, dynamic>);
-    } else {}
-  } catch (e) {}
-  return null;
+      final responseBody = response.body;
+      if (responseBody.isNotEmpty) {
+        final data = json.decode(responseBody) as Map<String, dynamic>;
+        if (data['routes'] != null && (data['routes'] as List).isNotEmpty) {
+          return Directions.fromMap(data);
+        } else {
+          print('Error: No routes found in response');
+          return null;
+        }
+      } else {
+        print('Error: Empty response body');
+        return null;
+      }
+    } else {
+      print('Error: Request failed with status ${response.statusCode}');
+      return null;
+    }
+  } catch (e) {
+    print('Error in getDirections: $e');
+    return null;
+  }
 }
 
 class Directions {

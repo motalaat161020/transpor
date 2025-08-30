@@ -70,13 +70,28 @@ class Prediction {
 
 Future<GoogleMapSearchModel?> searchListAddress({required String value}) async {
   try {
-    final response = await http.get(Uri.parse('https://dashboard.ghayti.app/proxy.php?input=$value&components=country:mr'));
+    // Validate that value is not null or empty
+    if (value.isEmpty) {
+      print('Error: Search value cannot be empty');
+      return null;
+    }
+
+    final response = await http.get(Uri.parse('https://dashboard.ghayti.app/proxy.php?input=$value&components=country:eg'));
+    
     if (response.statusCode == 200) {
-      return GoogleMapSearchModel.fromJson(json.decode(response.body) as Map<String, dynamic>);
+      final responseBody = response.body;
+      if (responseBody.isNotEmpty) {
+        return GoogleMapSearchModel.fromJson(json.decode(responseBody) as Map<String, dynamic>);
+      } else {
+        print('Error: Empty response body');
+        return null;
+      }
     } else {
+      print('Error: Request failed with status ${response.statusCode}');
       return null;
     }
   } catch (e) {
+    print('Error in searchListAddress: $e');
     return null;
   }
 }
@@ -90,7 +105,7 @@ Future<GoogleMapSearchModel?> searchListAddress({required String value}) async {
 //   try {
 // final client = CorsMiddleware();
 // // final response = await client.get(Uri.parse('https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$value&key=$GOOGLE_MAP_API_KEY&components=country:mr'));
-//     final response = await http.get(Uri.parse('https://yourserver.com/proxy.php?input=$value&components=country:mr'));
+//     final response = await http.get(Uri.parse('https://yourserver.com/proxy.php?input=$value&components=country:eg'));
 
 //     if (response.statusCode == 200) {
 //       final decodedResponse = json.decode(response.body);
@@ -112,7 +127,7 @@ Future<GoogleMapSearchModel?> searchListAddress({required String value}) async {
 //       {required String value}) async {
 //     try {
 //       Response response = await  DioFactory.getDio().get(
-//           'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$value&key=$GOOGLE_MAP_API_KEY&components=country:mr');
+//           'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$value&key=$GOOGLE_MAP_API_KEY&components=country:eg');
 //       if (response.statusCode == 200) {
 //         return GoogleMapSearchModel.fromJson(response.data);
 //       } else {

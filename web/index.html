@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="GHYTI Admin Dashboard - Ride Management System">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="admin_dashboard">
@@ -30,16 +30,15 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBw2yjQlova1YwxnvA733FZ9PK7sn99jlU&libraries=places,drawing,visualization"
     async defer></script>
 
-
   <!-- MarkerClusterer -->
   <script src="https://unpkg.com/@googlemaps/markerclusterer@2.5.3/dist/index.umd.min.js"></script>
 
   <!-- Firebase Scripts -->
- <!-- استخدم الإصدار الحديث من Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
   <!-- Flutter Service Worker Configuration -->
   <script>
     // The value below is injected by flutter build, do not touch.  
@@ -47,7 +46,7 @@
   </script>
 
   <!-- Flutter Initialization -->
-  <script src="flutter.js" defer=""></script>
+  <script src="flutter.js" defer></script>
 </head>
 
 <body>
@@ -57,14 +56,20 @@
       window.flutter_inappwebview.callHandler('javascriptHandler', 'init');
     }
   </script>
+
   <!-- Flutter App Entry Point -->
   <script>
     window.addEventListener('load', async function () {
-      let engineInitializer = await flutter.engineInitializer.initializeEngine({
-        renderer: "html",
-        assetBase: "/"
-      });
-      await engineInitializer.appRunner.runApp();
+      try {
+        let engineInitializer = await flutter.engineInitializer.initializeEngine({
+          renderer: "html",
+          assetBase: "/"
+        });
+        await engineInitializer.appRunner.runApp();
+      } catch (error) {
+        console.error('Error initializing Flutter app:', error);
+        document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;"><div style="text-align: center;"><h2>Error Loading Application</h2><p>Please refresh the page or try again later.</p><p>Error: ' + error.message + '</p></div></div>';
+      }
     });
   </script>
 
